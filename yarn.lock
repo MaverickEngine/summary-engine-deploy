@@ -150,6 +150,13 @@
     "estree-walker" "^2.0.1"
     "picomatch" "^2.2.2"
 
+"@sveltejs/pancake@^0.0.18":
+  "integrity" "sha512-vnpKn+sHE0yvw/6x4juF9EoDS8iYC5JNIVtRgclA37rfxdnIpvbVxStiZ5/gWncjERN4jtSpTAplS1zCARCBXA=="
+  "resolved" "https://registry.npmjs.org/@sveltejs/pancake/-/pancake-0.0.18.tgz"
+  "version" "0.0.18"
+  dependencies:
+    "yootils" "0.0.16"
+
 "@tootallnate/once@1":
   "integrity" "sha512-RbzJvlNzmRq5c3O09UipeuXno4tA1FE6ikOjxZK0tuxVv3412l64l5t1W5pj4+rJq9vpkm/kwiR07aZXnsKPxw=="
   "resolved" "https://registry.npmjs.org/@tootallnate/once/-/once-1.1.2.tgz"
@@ -456,6 +463,16 @@
     "ansi-styles" "^4.1.0"
     "supports-color" "^7.1.0"
 
+"chart.js@^3.5.0 || ^4.0.0", "chart.js@^4.0.1", "chart.js@>=2.8.0":
+  "integrity" "sha512-5/8/9eBivwBZK81mKvmIwTb2Pmw4D/5h1RK9fBWZLLZ8mCJ+kfYNmV9rMrGoa5Hgy2/wVDBMLSUDudul2/9ihA=="
+  "resolved" "https://registry.npmjs.org/chart.js/-/chart.js-4.0.1.tgz"
+  "version" "4.0.1"
+
+"chartjs-adapter-date-fns@^2.0.1":
+  "integrity" "sha512-v3WV9rdnQ05ce3A0ZCjzUekJCAbfm6+3HqSoeY2BIkdMYZoYr/4T+ril1tZyDl869lz6xdNVMXejUFT9YKpw4A=="
+  "resolved" "https://registry.npmjs.org/chartjs-adapter-date-fns/-/chartjs-adapter-date-fns-2.0.1.tgz"
+  "version" "2.0.1"
+
 "chokidar@>=3.0.0 <4.0.0":
   "integrity" "sha512-Dr3sfKRP6oTcjf2JmUmFJfeVMvXBdegxB0iVQ5eb2V10uFJUCAS8OByZdVAyVb8xXNz3GjjTgj9kLWsZTqE6kw=="
   "resolved" "https://registry.npmjs.org/chokidar/-/chokidar-3.5.3.tgz"
@@ -566,6 +583,11 @@
   "version" "1.14.1"
   dependencies:
     "assert-plus" "^1.0.0"
+
+"date-fns@^2.29.3":
+  "integrity" "sha512-dDCnyH2WnnKusqvZZ6+jA1O51Ibt8ZMRNkDZdyAyK4YfbDwa/cEmuztzG5pk6hqlp9aSBPYcjOlktquahGwGeA=="
+  "resolved" "https://registry.npmjs.org/date-fns/-/date-fns-2.29.3.tgz"
+  "version" "2.29.3"
 
 "debug@^4.1.0", "debug@^4.3.3", "debug@4":
   "integrity" "sha512-PRWFHuSU3eDtQJPvnNY7Jcket1j0t5OuOsFzPPzsekD52Zl8qUfFIPEiswXqIvHWGVHOgX+7G/vCNNhehwxfkQ=="
@@ -2020,6 +2042,11 @@
   "resolved" "https://registry.npmjs.org/supports-preserve-symlinks-flag/-/supports-preserve-symlinks-flag-1.0.0.tgz"
   "version" "1.0.0"
 
+"svelte-chartjs@^3.1.0":
+  "integrity" "sha512-tQ+v9fJOXUd44lKYUP3zINyyK4kRAWn2HBs8c1aIkJsodNJyZ6DJZgPywvNv2bbGIVbWXZ8aTgvDawUkday+zw=="
+  "resolved" "https://registry.npmjs.org/svelte-chartjs/-/svelte-chartjs-3.1.0.tgz"
+  "version" "3.1.0"
+
 "svelte-preprocess@^4.10.7":
   "integrity" "sha512-sNPBnqYD6FnmdBrUmBCaqS00RyCsCpj2BG58A1JBswNF7b0OKviwxqVrOL/CKyJrLSClrSeqQv5BXNg2RUbPOw=="
   "resolved" "https://registry.npmjs.org/svelte-preprocess/-/svelte-preprocess-4.10.7.tgz"
@@ -2032,7 +2059,7 @@
     "sorcery" "^0.10.0"
     "strip-indent" "^3.0.0"
 
-"svelte@^3.23.0", "svelte@^3.52.0", "svelte@>=3.5.0":
+"svelte@^3.23.0", "svelte@^3.45.0", "svelte@^3.52.0", "svelte@>=3.5.0":
   "integrity" "sha512-FxcnEUOAVfr10vDU5dVgJN19IvqeHQCS1zfe8vayTfis9A2t5Fhx+JDe5uv/C3j//bB1umpLJ6quhgs9xyUbCQ=="
   "resolved" "https://registry.npmjs.org/svelte/-/svelte-3.52.0.tgz"
   "version" "3.52.0"
@@ -2231,3 +2258,8 @@
     "string-width" "^4.2.3"
     "y18n" "^5.0.5"
     "yargs-parser" "^21.1.1"
+
+"yootils@0.0.16":
+  "integrity" "sha512-aIVecm5ucOzwhtKbl0zkfg0ZSOUR9c2da0k8cIc9umjjzkvVCWUUX/UHZ1CLPsv4wmJLqt0aWeLB7p9n9JDwYQ=="
+  "resolved" "https://registry.npmjs.org/yootils/-/yootils-0.0.16.tgz"
+  "version" "0.0.16"
