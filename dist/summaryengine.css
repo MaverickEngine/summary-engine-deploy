@@ -9,6 +9,14 @@
   margin-top: 10px;
 }
 
+#summaryEngineNavigator.svelte-7ckp25.svelte-7ckp25 {
+  margin-left: 10px;
+}
+
+#summaryEngineNavigator.svelte-7ckp25 button.svelte-7ckp25 {
+  margin-left: 5px;
+}
+
 #summaryEngineRate.svelte-l91exy.svelte-l91exy {
   margin-left: 1em;
   display: flex;
@@ -32,33 +40,6 @@
 
 #summaryEngineRate.svelte-l91exy #summaryEngineRateIcons .summaryengine-rate-icon-selected.svelte-l91exy {
   opacity: 1;
-}
-
-#summaryEngineNavigator.svelte-7ckp25.svelte-7ckp25 {
-  margin-left: 10px;
-}
-
-#summaryEngineNavigator.svelte-7ckp25 button.svelte-7ckp25 {
-  margin-left: 5px;
-}
-
-#summaryEngineCounter.svelte-1ebs6qp.svelte-1ebs6qp {
-  margin-left: 1em;
-  display: flex;
-  flex-direction: column;
-}
-
-#summaryEngineCounter.svelte-1ebs6qp #summaryEngineSubmissionsLeft.svelte-1ebs6qp {
-  padding: 8px;
-  background-color: #135516;
-  color: #fff;
-  border-radius: 2px;
-  text-align: center;
-  font-size: 1.2em;
-}
-
-#summaryEngineCounter.svelte-1ebs6qp #summaryEngineSubmissionsLeft.zero.svelte-1ebs6qp {
-  background-color: rgb(132, 39, 39);
 }
 
 #summaryEngineSettingsHeaderContainer.svelte-1xxi5yx.svelte-1xxi5yx {
@@ -96,6 +77,25 @@
   flex-direction: column;
   width: 33%;
   margin-bottom: 5px;
+}
+
+#summaryEngineCounter.svelte-1ebs6qp.svelte-1ebs6qp {
+  margin-left: 1em;
+  display: flex;
+  flex-direction: column;
+}
+
+#summaryEngineCounter.svelte-1ebs6qp #summaryEngineSubmissionsLeft.svelte-1ebs6qp {
+  padding: 8px;
+  background-color: #135516;
+  color: #fff;
+  border-radius: 2px;
+  text-align: center;
+  font-size: 1.2em;
+}
+
+#summaryEngineCounter.svelte-1ebs6qp #summaryEngineSubmissionsLeft.zero.svelte-1ebs6qp {
+  background-color: rgb(132, 39, 39);
 }
 
 .summaryengine-spinner.svelte-55i5mm.svelte-55i5mm {
