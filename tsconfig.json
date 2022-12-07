@@ -1,5 +1,10 @@
 {
     "compilerOptions": {
         "lib": ["es5", "es6", "dom"]
-    }
+    },
+    "extends": "@tsconfig/svelte/tsconfig.json",
+    "include": [
+        "src/**/*"
+    ],
+    "exclude": ["node_modules/*"]
 }
