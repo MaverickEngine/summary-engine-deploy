@@ -46,6 +46,14 @@ class SummaryEngineAPI {
                 return current_user_can( 'edit_others_posts' );
             }
         ));
+        // Edit existing summary
+        register_rest_route('summaryengine/v1', '/summary/(?P<id>\d+)', array(
+            'methods' => 'PUT',
+            'callback' => array( $this, 'put_summary' ),
+            'permission_callback' => function () {
+                return current_user_can( 'edit_others_posts' );
+            }
+        ));
         register_rest_route('summaryengine/v1', '/summary/(?P<id>\d+)', array(
             'methods' => 'GET',
             'callback' => array( $this, 'get_post_summary' ),
@@ -157,14 +165,14 @@ class SummaryEngineAPI {
         return $summary;
     }
 
-    protected function save_results($post_id, $type_id, $content, $original_prompt, $params, $summary_result) {
+    protected function save_results($post_id, $type_id, $content, $original_prompt, $original_append_prompt, $params, $summary_result) {
         global $wpdb;
         $data = array(
             'post_id' => $post_id,
             'type_id' => $type_id,
             'user_id' => get_current_user_id(),
             'submitted_text' => $content,
-            'summary' => trim($summary_result['choices'][0]['text']),
+            'summary' => $original_append_prompt . trim($summary_result['choices'][0]['text']),
             'openai_id' => $summary_result['id'],
             'openai_model' => $summary_result['model'],
             'frequency_penalty' => $params['frequency_penalty'],
@@ -173,11 +181,13 @@ class SummaryEngineAPI {
             'temperature' => $params['temperature'],
             'top_p' => $params['top_p'],
             'prompt' => $original_prompt ?? get_option('summaryengine_openai_prompt'),
+            'append_prompt' => $original_append_prompt ?? get_option('summaryengine_openai_append_prompt'),
             'openai_object' => $summary_result['object'],
             'openai_usage_completion_tokens' => $summary_result['usage']['completion_tokens'],
             'openai_usage_prompt_tokens' => $summary_result['usage']['prompt_tokens'],
             'openai_usage_total_tokens' => $summary_result['usage']['total_tokens'],
         );
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery
         $wpdb->insert(
             $this->table_name,
             $data,
@@ -194,6 +204,7 @@ class SummaryEngineAPI {
                 '%f',
                 '%f',
                 '%f',
+                '%s',
                 '%s',
                 '%s',
                 '%d',
@@ -213,6 +224,7 @@ class SummaryEngineAPI {
             $type_id = 1;
         }
         $type = $this->_get_type($type_id);
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery
         $result = $wpdb->get_results( $wpdb->prepare(
             "SELECT * FROM {$wpdb->prefix}summaryengine_summaries WHERE post_id = %d AND type_id=%d ORDER BY created_at DESC",
             $post_id, $type_id
@@ -232,6 +244,7 @@ class SummaryEngineAPI {
     public function get_post_summaries_count(WP_REST_Request $request) {
         global $wpdb;
         $id = $request->get_param('id');
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery
         $result = $wpdb->get_var( $wpdb->prepare(
             "SELECT COUNT(*) FROM {$wpdb->prefix}summaryengine_summaries WHERE post_id = %d ORDER BY created_at DESC",
             $id
@@ -249,9 +262,9 @@ class SummaryEngineAPI {
             if (empty($request->get_param('content'))) {
                 // Get content from post
                 $post = get_post($post_id);
-                $content = strip_tags($post->post_content);
+                $content = wp_strip_all_tags($post->post_content);
             } else {
-                $content = strip_tags($request->get_param('content'));
+                $content = wp_strip_all_tags($request->get_param('content'));
             }
             $type_id = $request->get_param('type_id');
             if (empty($type_id)) {
@@ -261,6 +274,7 @@ class SummaryEngineAPI {
             $type_settings = [
                 'openai_model' => $type->openai_model,
                 'openai_prompt' => $type->openai_prompt,
+                'openai_append_prompt' => $type->openai_append_prompt,
                 'openai_max_tokens' => $type->openai_max_tokens,
                 'openai_temperature' => $type->openai_temperature,
                 'openai_top_p' => $type->openai_top_p,
@@ -275,9 +289,10 @@ class SummaryEngineAPI {
             // Make sure we still have submissions left
             $max_number_of_submissions_per_post = intval(get_option('summaryengine_max_number_of_submissions_per_post'));
             if ($max_number_of_submissions_per_post > 0) {
+                // phpcs:ignore WordPress.DB.DirectDatabaseQuery
                 $number_of_submissions = $wpdb->get_var( $wpdb->prepare(
-                    "SELECT COUNT(*) FROM {$wpdb->prefix}summaryengine_summaries WHERE post_id = %d",
-                    $post_id
+                    "SELECT COUNT(*) FROM {$wpdb->prefix}summaryengine_summaries WHERE post_id = %d AND type_id=%d",
+                    $post_id, $type_id
                 ));
                 if ($number_of_submissions >= $max_number_of_submissions_per_post) {
                     return new WP_Error( 'too_many_submissions', "You have already submitted this post for automated summary a maxiumum number of $max_number_of_submissions_per_post times.", array( 'status' => 400 ) );
@@ -293,8 +308,10 @@ class SummaryEngineAPI {
             if (empty($content)) {
                 return new WP_Error( 'summaryengine_empty_content', __( 'Content is empty', 'summaryengine' ), array( 'status' => 400 ) );
             }
-            $openapi = new OpenAPI(get_option('summaryengine_openai_apikey'));
+            $apikey = OPENAI_APIKEY ?? get_option('summaryengine_openai_apikey');
+            $openapi = new OpenAPI($apikey);
             $original_prompt =  $settings["openai_prompt"] ?? get_option('summaryengine_openai_prompt');
+            $original_append_prompt = $settings["openai_append_prompt"] ?? get_option('summaryengine_openai_append_prompt');
             $params = array(
                 'model' => get_option( 'summaryengine_openai_model'),
                 'frequency_penalty' => floatval(get_option( 'summaryengine_openai_frequency_penalty')),
@@ -302,7 +319,7 @@ class SummaryEngineAPI {
                 'presence_penalty' => floatval(get_option( 'summaryengine_openai_presence_penalty')),
                 'temperature' => floatval(get_option( 'summaryengine_openai_temperature')),
                 'top_p' => floatval(get_option( 'summaryengine_openai_top_p')),
-                'prompt' => $original_prompt . "\n\n" . $content,
+                'prompt' => $original_prompt . "\n\n" . $content . "\n\n" . $original_append_prompt,
             );
             if (isset($settings["openai_model"])) {
                 $params['model'] = $settings["openai_model"];
@@ -322,9 +339,9 @@ class SummaryEngineAPI {
             if (isset($settings["openai_top_p"])) {
                 $params['top_p'] = floatval($settings["openai_top_p"]);
             }
-            $summary = $openapi->summarise($content, $params);
+            $summary = $openapi->summarise($params);
             if (empty($summary)) throw new Exception("Did not receive a valid summary from OpenAI");
-            $result = $this->save_results($post_id, $type_id, $content, $original_prompt, $params, $summary);
+            $result = $this->save_results($post_id, $type_id, $content, $original_prompt, $original_append_prompt, $params, $summary);
             // Set meta data for post
             update_post_meta($post_id, 'summaryengine_' . $type->slug, trim($result['summary']));
             update_post_meta($post_id, 'summaryengine_' . $type->slug . '_id', $result['ID']);
@@ -339,11 +356,13 @@ class SummaryEngineAPI {
         global $wpdb;
         $id = $request->get_param('id');
         $rating = $request->get_param('rating');
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery
         $summary = $wpdb->get_row( $wpdb->prepare(
             "SELECT * FROM {$wpdb->prefix}summaryengine_summaries WHERE ID = %d",
             $id
         ));
         $type = $this->_get_type($summary->type_id);
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery
         $wpdb->update(
             $this->table_name,
             array(
@@ -384,8 +403,42 @@ class SummaryEngineAPI {
         return array("success" => true);
     }
 
+    // Edit existing summary
+    public function put_summary(WP_REST_Request $request) {
+        global $wpdb;
+        $summary_id = $request->get_param('id');
+        $summary = $request->get_param('summary');
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery
+        $wpdb->update(
+            $this->table_name,
+            array(
+                'summary' => $summary,
+                'edited_at' => current_time('mysql', 1),
+                'edited_by' => get_current_user_id(),
+            ),
+            array(
+                'ID' => $summary_id,
+            ),
+            array(
+                '%s',
+                '%s',
+                '%d',
+            ),
+        );
+        // Check for errors
+        if ($wpdb->last_error !== '') {
+            return new WP_Error( 'summaryengine_api_error', __( 'Error updating summary', 'summaryengine' ), array( 'status' => 500 ) );
+        }
+        // Set new summary in post meta
+        $summary = $this->_get_summary($summary_id);
+        $type = $this->_get_type($summary->type_id);
+        update_post_meta($summary->post_id, 'summaryengine_' . $type->slug, $summary->summary);
+        return array("success" => true);
+    }
+
     protected function _get_summary($id) {
         global $wpdb;
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery
         $summary = $wpdb->get_row( $wpdb->prepare(
             "SELECT * FROM {$wpdb->prefix}summaryengine_summaries WHERE ID = %d",
             $id
@@ -416,6 +469,7 @@ class SummaryEngineAPI {
 
     protected function rated_summaries($rating, $size) {
         global $wpdb;
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery
         $results = $wpdb->get_results($wpdb->prepare("SELECT * FROM {$wpdb->prefix}summaryengine_summaries WHERE rating = %d ORDER BY created_at DESC LIMIT %d", [$rating, $size]));
         foreach($results as $result) {
             $result->post_title = get_the_title($result->post_id);
@@ -427,12 +481,14 @@ class SummaryEngineAPI {
 
     protected function count_rated_summaries() {
         global $wpdb;
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery
         $results = $wpdb->get_results($wpdb->prepare("SELECT COUNT(*) as count, rating FROM {$wpdb->prefix}summaryengine_summaries GROUP BY rating"));
         return $results;
     }
 
     protected function summaries_by_period($start, $end) {
         global $wpdb;
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery
         $results = $wpdb->get_results($wpdb->prepare("SELECT DATE(created_at) as date, COUNT(*) as count, rating FROM {$wpdb->prefix}summaryengine_summaries WHERE created_at > %s AND created_at <= %s GROUP BY DATE(created_at), rating", [$start, $end]));
         return $results;
     }
@@ -456,6 +512,7 @@ class SummaryEngineAPI {
 
     protected function _get_type($id) {
         global $wpdb;
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery
         $type = $wpdb->get_row( $wpdb->prepare(
             "SELECT * FROM {$wpdb->prefix}summaryengine_types WHERE ID = %d",
             $id
@@ -468,6 +525,7 @@ class SummaryEngineAPI {
 
     public function get_types(WP_REST_Request $request) {
         global $wpdb;
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery
         $results = $wpdb->get_results("SELECT * FROM {$wpdb->prefix}summaryengine_types ORDER BY name ASC");
         return $results;
     }
@@ -486,6 +544,7 @@ class SummaryEngineAPI {
         $openai_temperature = $request->get_param('openai_temperature');
         $openai_top_p = $request->get_param('openai_top_p');
         $openai_prompt = $request->get_param('openai_prompt');
+        $openai_append_prompt = $request->get_param('openai_append_prompt');
         $data = array(
             'name' => $name,
             'slug' => $slug,
@@ -498,6 +557,7 @@ class SummaryEngineAPI {
             'openai_temperature' => $openai_temperature,
             'openai_top_p' => $openai_top_p,
             'openai_prompt' => $openai_prompt,
+            'openai_append_prompt' => $openai_append_prompt,
         );
         $pattern = array(
             '%s',
@@ -510,9 +570,11 @@ class SummaryEngineAPI {
             '%f',
             '%f',
             '%s',
+            '%s',
         );
         if (!empty($id)) {
             $name = $request->get_param('name');
+            // phpcs:ignore WordPress.DB.DirectDatabaseQuery
             $wpdb->update(
                 "{$wpdb->prefix}summaryengine_types",
                 $data,
@@ -523,6 +585,7 @@ class SummaryEngineAPI {
             );
         } else {
             $name = $request->get_param('name');
+            // phpcs:ignore WordPress.DB.DirectDatabaseQuery
             $wpdb->insert(
                 "{$wpdb->prefix}summaryengine_types",
                 $data,
@@ -540,6 +603,7 @@ class SummaryEngineAPI {
     public function delete_type(WP_REST_Request $request) {
         global $wpdb;
         $id = intval($request->get_param('id'));
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery
         $wpdb->delete(
             "{$wpdb->prefix}summaryengine_types",
             array(
@@ -554,7 +618,6 @@ class SummaryEngineAPI {
     }
 
     public function get_posts(WP_REST_Request $request) {
-        // global $wpdb;
         $args = array(
             'post_type' => get_option("summaryengine_post_types", array("post")),
             'post_status' => 'publish',
@@ -633,6 +696,7 @@ class SummaryEngineAPI {
 
     public function get_post_months(WP_REST_Request $request) {
         global $wpdb;
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery
         $results = $wpdb->get_results("SELECT DISTINCT YEAR(post_date) AS year, MONTH(post_date) AS month FROM {$wpdb->prefix}posts WHERE post_status = 'publish' ORDER BY post_date DESC");
         return $results;
     }

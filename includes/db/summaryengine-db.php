@@ -26,6 +26,7 @@ class SummaryEngineDB {
             openai_temperature float NOT NULL DEFAULT 0.6,
             openai_top_p float NOT NULL DEFAULT 1,
             openai_prompt varchar(100) NOT NULL DEFAULT 'Summarize in 100 words: ',
+            openai_append_prompt varchar(100) NOT NULL DEFAULT '',
             INDEX created_at (created_at),
             UNIQUE KEY unique_name (name),
             UNIQUE KEY unique_slug (slug)
@@ -33,6 +34,7 @@ class SummaryEngineDB {
         dbDelta( $summaryengine_types_sql );
 
         // Insert the default types
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery
         $rows_affected = $wpdb->insert( $summaryengine_types_tablename, array( 'name' => 'Summary', 'slug' => 'summary', 'ID' => 1 ) );
         dbDelta( $rows_affected );
         
@@ -54,11 +56,15 @@ class SummaryEngineDB {
             temperature float NOT NULL,
             top_p float NOT NULL,
             prompt varchar(100) NOT NULL,
+            append_prompt varchar(100) NOT NULL,
             openai_object varchar(100) NOT NULL,
             openai_usage_completion_tokens mediumint(9) NOT NULL,
             openai_usage_prompt_tokens mediumint(9) NOT NULL,
             openai_usage_total_tokens mediumint(9) NOT NULL,
             rating int DEFAULT 0 NOT NULL,
+            edited tinyint(1) NOT NULL DEFAULT 0,
+            edited_at datetime DEFAULT NULL,
+            edited_by mediumint(9) DEFAULT NULL,
             INDEX type_id (type_id),
             INDEX post_id (post_id),
             INDEX user_id (user_id),
