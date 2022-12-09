@@ -1,4 +1,4 @@
-#summaryEngineGraphs.svelte-1idhnua {
+.summaryEngineGraphs.svelte-1qhapk5 {
   display: flex;
   flex-direction: row;
   justify-content: space-around;
@@ -6,11 +6,11 @@
   margin-bottom: 20px;
 }
 
-#summaryEngineDayChart.svelte-1idhnua {
+.summaryEngineDayChart.svelte-1qhapk5 {
   width: 600px;
 }
 
-#summaryEnginePieChart.svelte-1idhnua {
+.summaryEnginePieChart.svelte-1qhapk5 {
   height: 350px;
   width: 300px;
 }
