@@ -34,33 +34,6 @@
   height: 8em;
 }
 
-#summaryEngineNavigator.svelte-nmpeoh.svelte-nmpeoh {
-  margin-left: 10px;
-}
-
-#summaryEngineNavigator.svelte-nmpeoh button.svelte-nmpeoh {
-  margin-left: 5px;
-}
-
-#summaryEngineCounter.svelte-44y65o.svelte-44y65o {
-  margin-left: 1em;
-  display: flex;
-  flex-direction: column;
-}
-
-#summaryEngineCounter.svelte-44y65o #summaryEngineSubmissionsLeft.svelte-44y65o {
-  padding: 8px;
-  background-color: #135516;
-  color: #fff;
-  border-radius: 2px;
-  text-align: center;
-  font-size: 1.2em;
-}
-
-#summaryEngineCounter.svelte-44y65o #summaryEngineSubmissionsLeft.zero.svelte-44y65o {
-  background-color: #842727;
-}
-
 #summaryEngineRate.svelte-90ou5e.svelte-90ou5e {
   margin-left: 1em;
   display: flex;
@@ -84,6 +57,33 @@
 
 #summaryEngineRate.svelte-90ou5e #summaryEngineRateIcons .summaryengine-rate-icon-selected.svelte-90ou5e {
   opacity: 1;
+}
+
+#summaryEngineCounter.svelte-44y65o.svelte-44y65o {
+  margin-left: 1em;
+  display: flex;
+  flex-direction: column;
+}
+
+#summaryEngineCounter.svelte-44y65o #summaryEngineSubmissionsLeft.svelte-44y65o {
+  padding: 8px;
+  background-color: #135516;
+  color: #fff;
+  border-radius: 2px;
+  text-align: center;
+  font-size: 1.2em;
+}
+
+#summaryEngineCounter.svelte-44y65o #summaryEngineSubmissionsLeft.zero.svelte-44y65o {
+  background-color: #842727;
+}
+
+#summaryEngineNavigator.svelte-nmpeoh.svelte-nmpeoh {
+  margin-left: 10px;
+}
+
+#summaryEngineNavigator.svelte-nmpeoh button.svelte-nmpeoh {
+  margin-left: 5px;
 }
 
 .summaryengine-spinner.svelte-haebdk.svelte-haebdk {
