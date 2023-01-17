@@ -1,10 +1,12 @@
 #!/bin/sh
 
+# Clean up from last install
 rm -rf includes
 rm -rf templates
 rm -rf data
 rm -rf dist
 rm -rf assets
+rm -rf libraries
 wget https://github.com/maverickengine/summary-engine/archive/refs/heads/main.zip
 unzip main.zip
 rm main.zip
