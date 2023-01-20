@@ -7,6 +7,7 @@ rm -rf data
 rm -rf dist
 rm -rf assets
 rm -rf libraries
+rm -rf docs
 wget https://github.com/maverickengine/summary-engine/archive/refs/heads/main.zip
 unzip main.zip
 rm main.zip
