@@ -81,9 +81,6 @@ class SummaryEngineDB {
             INDEX summaryengine_version (summaryengine_version)
         ) $charset_collate;";
         dbDelta( $summaryengine_tests_sql );
-        // Migrate old fields
-        // phpcs:ignore WordPress.DB
-        $wpdb->query("UPDATE $summaryengine_tests_tablename SET openai_frequency_penalty = frequency_penalty, openai_max_tokens = max_tokens, openai_presence_penalty = presence_penalty, openai_temperature = temperature, openai_top_p = top_p WHERE summaryengine_version = 0");
         // phpcs:ignore WordPress.DB.DirectDatabaseQuery
         $wpdb->update( $summaryengine_tests_tablename, array( 'summaryengine_version' => SUMMARYENGINE_DB_VERSION ), array( 'summaryengine_version' => 0 ) );
         update_option( "summaryengine_db_version", SUMMARYENGINE_DB_VERSION );
@@ -133,11 +130,11 @@ class SummaryEngineDB {
             'openai_model' => $summary_result['model'],
             'word_limit' => $settings['word_limit'],
             'cut_at_paragraph' => $settings['cut_at_paragraph'],
-            'frequency_penalty' => $settings['openai_frequency_penalty'],
-            'max_tokens' => $settings['openai_max_tokens'],
-            'presence_penalty' => $settings['openai_presence_penalty'],
-            'temperature' => $settings['openai_temperature'],
-            'top_p' => $settings['openai_top_p'],
+            'openai_frequency_penalty' => $settings['openai_frequency_penalty'],
+            'openai_max_tokens' => $settings['openai_max_tokens'],
+            'openai_presence_penalty' => $settings['openai_presence_penalty'],
+            'openai_temperature' => $settings['openai_temperature'],
+            'openai_top_p' => $settings['openai_top_p'],
             'prompt' => $settings['openai_prompt'],
             'append_prompt' => $settings['openai_append_prompt'],
             'openai_object' => $summary_result['object'],
