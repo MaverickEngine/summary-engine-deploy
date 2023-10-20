@@ -16,5 +16,6 @@ mv summary-engine-main/* .
 rm -rf summary-engine-main
 npm install
 npm run build
+npm run docs
 rm -rf src
 rm -rf node_modules
